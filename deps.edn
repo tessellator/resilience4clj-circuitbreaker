@@ -1,0 +1,4 @@
+{:paths ["src"]
+
+ :deps {io.github.resilience4j/resilience4j-circuitbreaker {:mvn/version "0.15.0"}
+        org.clojure/clojure {:mvn/version "1.9.0"}}}
