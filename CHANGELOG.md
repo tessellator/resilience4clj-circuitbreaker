@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 27 January 2020
+### Changed
+- *Breaking* Updated configuration options to reflect resilience4j circuitbreaker 1.0+
+
 ## [0.1.0] - 22 July 2019
 ### Added
 - Added initial circuit breaker wrapper implementation
