@@ -34,6 +34,6 @@ on a circuit breaker.
 
 ## License
 
-Copyright © 2019 Thomas C. Taylor and contributors.
+Copyright © 2019-2020 Thomas C. Taylor and contributors.
 
 Distributed under the Eclipse Public License version 2.0.
