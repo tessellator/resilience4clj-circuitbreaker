@@ -6,6 +6,7 @@
   (:import [io.github.resilience4j.circuitbreaker
             CircuitBreaker
             CircuitBreakerConfig
+            CircuitBreakerConfig$SlidingWindowType
             CircuitBreakerRegistry]
            [java.time Duration]
            [java.util.function Predicate]))
@@ -16,10 +17,23 @@
 (s/def ::failure-rate-threshold
   (s/and number? #(<= 0 % 100)))
 
-(s/def ::ring-buffer-size-in-half-open-state
+(s/def ::slow-call-rate-threshold
+  (s/and number? #(<= 0 % 100)))
+
+(s/def ::slow-call-duration-threshold
   nat-int?)
 
-(s/def ::ring-buffer-size-in-closed-state
+(s/def ::permitted-number-of-calls-in-half-open-state
+  nat-int?)
+
+(s/def ::sliding-window-type
+  #{:count-based
+    :time-based})
+
+(s/def ::sliding-window-size
+  nat-int?)
+
+(s/def ::minimum-number-of-calls
   nat-int?)
 
 (s/def ::wait-duration-in-open-state
@@ -34,18 +48,26 @@
 (s/def ::ignore-exceptions
   (s/coll-of class?))
 
-(s/def ::record-failure
+(s/def ::record-exception
+  fn?)
+
+(s/def ::ignore-exception
   fn?)
 
 (s/def ::config
   (s/keys :opt-un [::failure-rate-threshold
-                   ::ring-buffer-size-in-half-open-state
-                   ::ring-buffer-size-in-closed-state
+                   ::slow-call-rate-threshold
+                   ::slow-call-duration-threshold
+                   ::permitted-number-of-calls-in-half-open-state
+                   ::sliding-window-type
+                   ::sliding-window-size
+                   ::minimum-number-of-calls
                    ::wait-duration-in-open-state
                    ::automatic-transition-from-open-to-half-open-enabled
                    ::record-exceptions
                    ::ignore-exceptions
-                   ::record-failure]))
+                   ::record-exception
+                   ::ignore-exception]))
 
 (s/def ::name
   (s/or :string (s/and string? not-empty)
@@ -53,23 +75,44 @@
 
 (defn- build-config [config]
   (let [{:keys [failure-rate-threshold
-                ring-buffer-size-in-half-open-state
-                ring-buffer-size-in-closed-state
+                slow-call-rate-threshold
+                slow-call-duration-threshold
+                permitted-number-of-calls-in-half-open-state
+                sliding-window-type
+                sliding-window-size
+                minimum-number-of-calls
                 wait-duration-in-open-state
                 automatic-transition-from-open-to-half-open-enabled
                 record-exceptions
                 ignore-exceptions
-                record-failure]} config]
+                record-exception
+                ignore-exception]} config]
     (cond-> (CircuitBreakerConfig/custom)
 
       failure-rate-threshold
       (.failureRateThreshold failure-rate-threshold)
 
-      ring-buffer-size-in-half-open-state
-      (.ringBufferSizeInHalfOpenState ring-buffer-size-in-half-open-state)
+      slow-call-rate-threshold
+      (.slowCallRateThreshold slow-call-rate-threshold)
 
-      ring-buffer-size-in-closed-state
-      (.ringBufferSizeInClosedState ring-buffer-size-in-closed-state)
+      slow-call-duration-threshold
+      (.slowCallDurationThreshold (Duration/ofMillis slow-call-duration-threshold))
+
+      permitted-number-of-calls-in-half-open-state
+      (.permittedNumberOfCallsInHalfOpenState permitted-number-of-calls-in-half-open-state)
+
+      sliding-window-type
+      (as-> cfg
+          (let [t (if (= sliding-window-type :count-based)
+                    CircuitBreakerConfig$SlidingWindowType/COUNT_BASED
+                    CircuitBreakerConfig$SlidingWindowType/TIME_BASED)]
+            (.slidingWindowType cfg t)))
+
+      sliding-window-size
+      (.slidingWindowSize sliding-window-size)
+
+      minimum-number-of-calls
+      (.minimumNumberOfCalls minimum-number-of-calls)
 
       wait-duration-in-open-state
       (.waitDurationInOpenState (Duration/ofMillis wait-duration-in-open-state))
@@ -83,8 +126,11 @@
       ignore-exceptions
       (.ignoreExceptions (into-array java.lang.Class ignore-exceptions))
 
-      record-failure
-      (.recordFailure (reify Predicate (test [_ ex] (record-failure ex))))
+      record-exception
+      (.recordException (reify Predicate (test [_ ex] (record-exception ex))))
+
+      ignore-exception
+      (.ignoreException (reify Predicate (test [_ ex] (ignore-exception ex))))
 
       :always
       (.build))))
