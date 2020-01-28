@@ -138,14 +138,14 @@
 ;; -----------------------------------------------------------------------------
 ;; Registry
 
-(def registry 
+(def registry
   "The global circuit breaker and config registry."
   (CircuitBreakerRegistry/ofDefaults))
 
 (defn- build-configs-map [configs-map]
   (into {} (map (fn [[k v]] [(clojure.core/name k) (build-config v)]) configs-map)))
 
-(defn configure-registry! 
+(defn configure-registry!
   "Overwrites the global registry with one that contains the configs-map.
 
   configs-map is a map whose keys are names and vals are configs. When a circuit
@@ -163,7 +163,7 @@
 ;; Creation and fetching from registry
 
 (defn circuit-breaker!
-  "Creates or fetches a circuit breaker with the specified name and config and 
+  "Creates or fetches a circuit breaker with the specified name and config and
   stores it in the global registry.
 
   The config value can be either a config map or the name of a config map stored
@@ -181,7 +181,7 @@
      (.circuitBreaker registry (clojure.core/name name) config)
      (.circuitBreaker registry (clojure.core/name name) (build-config config)))))
 
-(defn circuit-breaker 
+(defn circuit-breaker
   "Creates a circuit breaker with the specified name and config."
   [name config]
   {:pre [(s/valid? ::name name)
@@ -191,17 +191,17 @@
 ;; -----------------------------------------------------------------------------
 ;; Execution
 
-(defn execute 
+(defn execute
   "Apply args to f within a context protected by the circuit breaker."
   [^CircuitBreaker circuit-breaker f & args]
   (.executeCallable circuit-breaker #(apply f args)))
 
-(defmacro with-circuit-breaker 
+(defmacro with-circuit-breaker
   "Executes body within a context protected by the circuit breaker.
 
   `circuit-breaker` is either a circuit breaker or the name of one in the global
-  registry. If you provide a name and a circuit breaker of that name does not 
-  already exist in the global registry, one will be created with the `:default` 
+  registry. If you provide a name and a circuit breaker of that name does not
+  already exist in the global registry, one will be created with the `:default`
   config."
   [circuit-breaker & body]
   `(let [cb# (if (s/valid? ::name ~circuit-breaker)
@@ -219,7 +219,7 @@
   buffers."
   (.reset circuit-breaker))
 
-(defn disable! 
+(defn disable!
   "Transitions the circuit breaker to the `:disabled` state.
 
   In the `:disabled` state, the circuit breaker will not automatically
@@ -230,22 +230,22 @@
   [^CircuitBreaker circuit-breaker]
   (.transitionToDisabledState circuit-breaker))
 
-(defn close! 
+(defn close!
   "Transitions the circuit breaker to the `:closed` state."
   [^CircuitBreaker circuit-breaker]
   (.transitionToClosedState circuit-breaker))
 
-(defn open! 
+(defn open!
   "Transitions the circuit breaker to the `:open` state."
   [^CircuitBreaker circuit-breaker]
   (.transitionToOpenState circuit-breaker))
 
-(defn half-open! 
+(defn half-open!
   "Transitions the circuit breaker to the `:half-open` state."
   [^CircuitBreaker circuit-breaker]
   (.transitionToHalfOpenState circuit-breaker))
 
-(defn force-open! 
+(defn force-open!
   "Transitions the circuit breaker to the `:forced-open` state.
 
   In the `:forced-open` state, the circuit breaker will not automatically
@@ -259,12 +259,12 @@
 ;; -----------------------------------------------------------------------------
 ;; Circuit breaker properties
 
-(defn name 
+(defn name
   "Gets the name of the circuit breaker."
   [^CircuitBreaker circuit-breaker]
   (.getName circuit-breaker))
 
-(defn state 
+(defn state
   "Gets the current state of the circuit breaker."
   [^CircuitBreaker circuit-breaker]
   (-> circuit-breaker
