@@ -212,11 +212,12 @@
 ;; -----------------------------------------------------------------------------
 ;; Managing state
 
-(defn reset! [^CircuitBreaker circuit-breaker]
+(defn reset!
   "Resets the circuit breaker to its original state.
 
   Resets all metrics collected and effectively empties the contents of its ring
   buffers."
+  [^CircuitBreaker circuit-breaker]
   (.reset circuit-breaker))
 
 (defn disable!
