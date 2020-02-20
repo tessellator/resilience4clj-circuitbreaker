@@ -257,6 +257,16 @@
   [^CircuitBreaker circuit-breaker]
   (.transitionToForcedOpenState circuit-breaker))
 
+(defn metrics-only!
+  "Transitions the circuit breaker to the `:metrics-only` state.
+
+  In the `:metrics-only` state, the circuit breaker will not transition to
+  other states, but it will continue to capture metrics and publish events.
+
+  You must manually transition out of the `:metrics-only`` state."
+  [^CircuitBreaker circuit-breaker]
+  (.transitionToMetricsOnlyState circuit-breaker))
+
 ;; -----------------------------------------------------------------------------
 ;; Circuit breaker properties
 
