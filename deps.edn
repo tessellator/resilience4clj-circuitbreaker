@@ -1,4 +1,19 @@
 {:paths ["src"]
 
  :deps {io.github.resilience4j/resilience4j-circuitbreaker {:mvn/version "1.3.1"}
-        org.clojure/clojure {:mvn/version "1.9.0"}}}
+        org.clojure/clojure                                {:mvn/version "1.5.1"}
+        org.clojure/core.async                             {:mvn/version "0.3.442"}}
+
+ :aliases
+ {:test {:extra-paths ["test"]
+         :extra-deps  {com.cognitect/test-runner {:git/url "https://github.com/cognitect-labs/test-runner.git"
+                                                  :sha     "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+         :main-opts   ["-m" "cognitect.test-runner"]}
+
+  :clj-1.6 {:override-deps {org.clojure/clojure {:mvn/version "1.6.0"}}}
+  :clj-1.7 {:override-deps {org.clojure/clojure {:mvn/version "1.7.0"}}}
+  :clj-1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
+  :clj-1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
+  :clj-1.10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.0"}}}
+
+  :async-1.0 {:override-deps {org.clojure/core.async {:mvn/version "1.0.567"}}}}}

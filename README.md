@@ -2,7 +2,8 @@
 
 A small Clojure wrapper around the
 [resilience4j CircuitBreaker module](https://resilience4j.readme.io/docs/circuitbreaker).
-Requires Clojure 1.9 or later.
+
+Requires Clojure 1.5 or later for JDK 8, and Clojure 1.10 or later for JDK 9+.
 
 [![clojars badge](https://img.shields.io/clojars/v/tessellator/resilience4clj-circuitbreaker.svg)](https://clojars.org/tessellator/resilience4clj-circuitbreaker)
 [![cljdoc badge](https://cljdoc.org/badge/tessellator/resilience4clj-circuitbreaker)](https://cljdoc.org/d/tessellator/resilience4clj-circuitbreaker/CURRENT)
@@ -11,7 +12,7 @@ Requires Clojure 1.9 or later.
 ## Quick Start
 
 The following code defines a function `make-remote-call` that uses a circuit
-breaker named `:some-name` and stored in the global registry. If the circuit
+breaker named `:some-name` and stored in the default registry. If the circuit
 breaker does not already exist, one is created.
 
 ```clojure
@@ -25,7 +26,7 @@ breaker does not already exist, one is created.
 ```
 
 Refer to the [configuration guide](/doc/01_configuration.md) for more
-information on how to configure the global registry as well as individual
+information on how to configure the default registry as well as individual
 circuit breakers.
 
 Refer to the [usage guide](/doc/02_usage.md) for more information on how to

@@ -2,3 +2,4 @@
 .cpcache/
 .rebl/
 target/
+log/
