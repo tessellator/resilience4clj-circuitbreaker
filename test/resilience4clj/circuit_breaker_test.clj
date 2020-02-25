@@ -284,7 +284,7 @@
 
 (deftest test-emit-registry-events!
   (let [reg (cb/registry)
-        event-chan (async/chan)
+        event-chan (async/chan 1)
         first-breaker (atom nil)
         second-breaker (cb/circuit-breaker :some-breaker {})]
     (cb/emit-registry-events! reg event-chan)
@@ -313,7 +313,7 @@
 
 (deftest test-emit-registry-events!--no-registry-provided
   (let [reg (cb/registry)
-        event-chan (async/chan)]
+        event-chan (async/chan 1)]
     (with-redefs [cb/default-registry reg]
       (cb/emit-registry-events! event-chan)
       (cb/circuit-breaker! reg :some-name))
@@ -323,7 +323,7 @@
 
 (deftest test-emit-registry-events!--with-only-filter
   (let [reg (cb/registry)
-        event-chan (async/chan)]
+        event-chan (async/chan 1)]
     (cb/emit-registry-events! reg event-chan :only [:added])
 
     (testing "it raises the added event"
@@ -338,7 +338,7 @@
 
 (deftest test-emit-registry-events!--with-exclude-filter
   (let [reg (cb/registry)
-        event-chan (async/chan)]
+        event-chan (async/chan 1)]
     (cb/emit-registry-events! reg event-chan :exclude [:added])
 
     (testing "it does not raise the added event"
@@ -353,7 +353,7 @@
 
 (deftest test-emit-registry-events!-only-filter-trumps-exclude-filter
   (let [reg (cb/registry)
-        event-chan (async/chan)]
+        event-chan (async/chan 1)]
     (cb/emit-registry-events! reg event-chan :only [:added] :exclude [:added])
 
     (testing "it raises the added event"
@@ -534,7 +534,7 @@
     (is (instance? ZonedDateTime creation-time))))
 
 (deftest test-emit-events!--on-success
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name {})]
     (cb/emit-events! breaker event-chan)
 
@@ -547,7 +547,7 @@
       (is (instance? Duration (:elapsed-duration event))))))
 
 (deftest test-emit-events!--on-error
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name {})
         ex (ex-info "some message" {})]
     (cb/emit-events! breaker event-chan)
@@ -564,7 +564,7 @@
       (is (instance? Duration elapsed-duration)))))
 
 (deftest test-emit-events!--on-state-transition
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name {})]
     (cb/emit-events! breaker event-chan)
 
@@ -577,7 +577,7 @@
       (is (= :forced-open to-state)))))
 
 (deftest test-emit-events!--on-reset
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name {})]
     (cb/emit-events! breaker event-chan)
 
@@ -587,7 +587,7 @@
       (check-base-event event :reset "some-name"))))
 
 (deftest test-emit-events!--on-ignored-error
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name {:ignore-exception (constantly true)})
         ex (ex-info "some message" {:some :value})]
     (cb/emit-events! breaker event-chan)
@@ -604,7 +604,7 @@
       (is (instance? Duration elapsed-duration)))))
 
 (deftest test-emit-events!--on-call-not-permitted
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name {})]
     ;; NOTE: cannot use force-open! here because that is
     ;; a state that does not allow events to be published
@@ -620,7 +620,7 @@
       (check-base-event event :not-permitted "some-name"))))
 
 (deftest test-emit-events!--on-fail-rate-exceeded
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 2)
         breaker (cb/circuit-breaker :some-name {:sliding-window-size 6})]
 
     (dotimes [_ 5]
@@ -641,7 +641,7 @@
       (check-base-event event :failure-rate-exceeded "some-name"))))
 
 (deftest test-emit-events!--slow-call-rate-exceeded
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 2)
         breaker (cb/circuit-breaker :some-name {:slow-call-duration-threshold 1
                                                 :sliding-window-size 6})]
     (dotimes [_ 5]
@@ -658,7 +658,7 @@
       (check-base-event event :slow-call-rate-exceeded "some-name"))))
 
 (deftest test-emit-events!-with-only-filter
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name)]
     (cb/emit-events! breaker event-chan :only [:success])
 
@@ -677,7 +677,7 @@
         (is (= :timeout event))))))
 
 (deftest test-emit-events!-with-exclude-filter
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name)]
     (cb/emit-events! breaker event-chan :exclude [:success])
 
@@ -696,7 +696,7 @@
         (is (= :error (:event-type event)))))))
 
 (deftest test-emit-events!-only-filter-trumps-exclude-filter
-  (let [event-chan (async/chan)
+  (let [event-chan (async/chan 1)
         breaker (cb/circuit-breaker :some-name)]
     (cb/emit-events! breaker event-chan :only [:success] :exclude [:success])
 

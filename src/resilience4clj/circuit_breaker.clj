@@ -182,26 +182,26 @@
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^EntryAddedEvent e event]
-       (async/put! out-chan
-                   {:event-type (keywordize-enum-value (.getEventType e))
-                    :added-entry ^CircuitBreaker (.getAddedEntry e)})))))
+       (async/offer! out-chan
+                     {:event-type (keywordize-enum-value (.getEventType e))
+                      :added-entry ^CircuitBreaker (.getAddedEntry e)})))))
 
 (defn- entry-removed-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^EntryRemovedEvent e event]
-       (async/put! out-chan
-                   {:event-type (keywordize-enum-value (.getEventType e))
-                    :removed-entry ^CircuitBreaker (.getRemovedEntry e)})))))
+       (async/offer! out-chan
+                     {:event-type (keywordize-enum-value (.getEventType e))
+                      :removed-entry ^CircuitBreaker (.getRemovedEntry e)})))))
 
 (defn- entry-replaced-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^EntryReplacedEvent e event]
-       (async/put! out-chan
-                   {:event-type (keywordize-enum-value (.getEventType e))
-                    :old-entry ^CircuitBreaker (.getOldEntry e)
-                    :new-entry ^CircuitBreaker (.getNewEntry e)})))))
+       (async/offer! out-chan
+                     {:event-type (keywordize-enum-value (.getEventType e))
+                      :old-entry ^CircuitBreaker (.getOldEntry e)
+                      :new-entry ^CircuitBreaker (.getNewEntry e)})))))
 
 (def registry-event-types
   "The event types that can be raised by a registry."
@@ -383,64 +383,64 @@
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnSuccessEvent e event]
-        (async/put! out-chan
-                    (assoc (base-event e)
-                           :elapsed-duration (.getElapsedDuration e)))))))
+        (async/offer! out-chan
+                      (assoc (base-event e)
+                             :elapsed-duration (.getElapsedDuration e)))))))
 
 (defn- error-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnErrorEvent e event]
-        (async/put! out-chan
-                    (assoc (base-event e)
-                           :throwable (.getThrowable e)
-                           :elapsed-duration (.getElapsedDuration e)))))))
+        (async/offer! out-chan
+                      (assoc (base-event e)
+                             :throwable (.getThrowable e)
+                             :elapsed-duration (.getElapsedDuration e)))))))
 
 (defn- state-transition-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnStateTransitionEvent e event]
-        (async/put! out-chan
-                    (assoc (base-event e)
-                           :from-state (keywordize-enum-value (.. e getStateTransition getFromState))
-                           :to-state (keywordize-enum-value (.. e getStateTransition getToState))))))))
+        (async/offer! out-chan
+                      (assoc (base-event e)
+                             :from-state (keywordize-enum-value (.. e getStateTransition getFromState))
+                             :to-state (keywordize-enum-value (.. e getStateTransition getToState))))))))
 
 (defn- reset-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnResetEvent e event]
-        (async/put! out-chan (base-event e))))))
+        (async/offer! out-chan (base-event e))))))
 
 (defn- ignored-error-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnIgnoredErrorEvent e event]
-        (async/put! out-chan
-                    (assoc (base-event e)
-                           :throwable (.getThrowable e)
-                           :elapsed-duration (.getElapsedDuration e)))))))
+        (async/offer! out-chan
+                      (assoc (base-event e)
+                             :throwable (.getThrowable e)
+                             :elapsed-duration (.getElapsedDuration e)))))))
 
 (defn- call-not-permitted-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnCallNotPermittedEvent e event]
-        (async/put! out-chan (base-event e))))))
+        (async/offer! out-chan (base-event e))))))
 
 (defn- failure-rate-exceeded-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnFailureRateExceededEvent e event]
-        (async/put! out-chan
-                    (assoc (base-event e)
-                           :failure-rate (.getFailureRate e)))))))
+        (async/offer! out-chan
+                      (assoc (base-event e)
+                             :failure-rate (.getFailureRate e)))))))
 
 (defn- slow-call-rate-exceeded-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^CircuitBreakerOnSlowCallRateExceededEvent e event]
-        (async/put! out-chan
-                    (assoc (base-event e)
-                           :slow-call-rate (.getSlowCallRate e)))))))
+        (async/offer! out-chan
+                      (assoc (base-event e)
+                             :slow-call-rate (.getSlowCallRate e)))))))
 
 (defn emit-events!
   "Offers events `circuit-breaker` to `out-chan`.
