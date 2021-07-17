@@ -10,6 +10,9 @@
                                                   :sha     "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
          :main-opts   ["-m" "cognitect.test-runner"]}
 
+  :lint {:extra-deps {clj-kondo/clj-kondo {:mvn/version "2021.06.18"}}
+         :main-opts ["-m" "clj-kondo.main" "--lint" "src" "test"]}
+
   :clj-1.6 {:override-deps {org.clojure/clojure {:mvn/version "1.6.0"}}}
   :clj-1.7 {:override-deps {org.clojure/clojure {:mvn/version "1.7.0"}}}
   :clj-1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
