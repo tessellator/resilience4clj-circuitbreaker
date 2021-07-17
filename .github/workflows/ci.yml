@@ -6,31 +6,31 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-  steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Set up Java
-      uses: actions/setup-java@v2
-      with:
-        distribution: adopt
-        java-version: 11
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: adopt
+          java-version: 11
 
-    - name: Set up Clojure
-      uses: DeLaGuardo/setup-clojure@3.4
-      with:
-        cli: 1.10.3.855
+      - name: Set up Clojure
+        uses: DeLaGuardo/setup-clojure@3.4
+        with:
+          cli: 1.10.3.855
 
-    - name: Cache maven artifacts
-      id: cache-maven
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2
-        key: ${{ hashFiles('deps.edn') }}
+      - name: Cache maven artifacts
+        id: cache-maven
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ hashFiles('deps.edn') }}
 
-    - name: Download dependencies
-      if: steps.cache-maven.outputs.cache-hit != 'true'
-      run: clojure -A:clj-1.10:async-1.0:test -Stree
+      - name: Download dependencies
+        if: steps.cache-maven.outputs.cache-hit != 'true'
+        run: clojure -A:clj-1.10:async-1.0:test -Stree
 
-    - name: Run tests
-      run: clojure -M:clj-1.10:async-1.0:test
+      - name: Run tests
+        run: clojure -M:clj-1.10:async-1.0:test
