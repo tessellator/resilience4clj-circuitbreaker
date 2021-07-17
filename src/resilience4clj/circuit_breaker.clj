@@ -224,14 +224,14 @@
   ([^CircuitBreakerRegistry registry out-chan & {:keys [only exclude]
                                                  :or {exclude []}}]
    (let [events-to-publish (if only (set only)
-                               (apply disj registry-event-types exclude))]
-     (let [^Registry$EventPublisher pub (.getEventPublisher registry)]
-       (when (contains? events-to-publish :added)
-         (.onEntryAdded pub (entry-added-consumer out-chan)))
-       (when (contains? events-to-publish :removed)
-         (.onEntryRemoved pub (entry-removed-consumer out-chan)))
-       (when (contains? events-to-publish :replaced)
-         (.onEntryReplaced pub (entry-replaced-consumer out-chan)))))
+                               (apply disj registry-event-types exclude))
+         ^Registry$EventPublisher pub (.getEventPublisher registry)]
+     (when (contains? events-to-publish :added)
+       (.onEntryAdded pub (entry-added-consumer out-chan)))
+     (when (contains? events-to-publish :removed)
+       (.onEntryRemoved pub (entry-removed-consumer out-chan)))
+     (when (contains? events-to-publish :replaced)
+       (.onEntryReplaced pub (entry-replaced-consumer out-chan))))
    out-chan))
 
 ;; -----------------------------------------------------------------------------

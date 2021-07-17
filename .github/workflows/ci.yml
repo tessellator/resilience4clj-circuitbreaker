@@ -30,7 +30,10 @@ jobs:
 
       - name: Download dependencies
         if: steps.cache-maven.outputs.cache-hit != 'true'
-        run: clojure -A:clj-1.10:async-1.0:test -Stree
+        run: clojure -A:clj-1.10:async-1.0:test:lint -Stree
+
+      - name: Lint code
+        run: clojure -M:clj-1.10:async-1.0:lint
 
       - name: Run tests
         run: clojure -M:clj-1.10:async-1.0:test

@@ -1,6 +1,6 @@
 (ns resilience4clj.circuit-breaker-test
   (:require [clojure.core.async :as async]
-            [clojure.test :refer :all]
+            [clojure.test :refer [deftest is testing]]
             [resilience4clj.circuit-breaker :as cb :refer [with-circuit-breaker]])
   (:import [io.github.resilience4j.circuitbreaker
             CallNotPermittedException
@@ -48,19 +48,19 @@
     (try
       (with-circuit-breaker breaker
         (throw (NullPointerException.)))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))
 
     (try
       (with-circuit-breaker breaker
         (throw (ArrayIndexOutOfBoundsException.)))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 2 (.. breaker getMetrics getNumberOfFailedCalls)))
 
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "some other exception" {})))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 2 (.. breaker getMetrics getNumberOfFailedCalls)))))
 
 (deftest test-build-config--ignore-exceptions
@@ -70,19 +70,19 @@
     (try
       (with-circuit-breaker breaker
         (throw (NullPointerException.)))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (zero? (.. breaker getMetrics getNumberOfFailedCalls)))
 
     (try
       (with-circuit-breaker breaker
         (throw (ArrayIndexOutOfBoundsException.)))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (zero? (.. breaker getMetrics getNumberOfFailedCalls)))
 
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "some other exception" {})))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))))
 
 (deftest test-build-config--record-exception
@@ -92,13 +92,13 @@
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "not this" {})))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (zero? (.. breaker getMetrics getNumberOfFailedCalls)))
 
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "record this" {})))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))))
 
 (deftest test-build-config--ignore-exception
@@ -108,13 +108,13 @@
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "record this" {})))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))
 
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "ignore this" {})))
-      (catch Throwable t))
+      (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))))
 
 (deftest test-build-config--sliding-window-type
@@ -541,8 +541,7 @@
     (with-circuit-breaker breaker
       :done)
 
-    (let [event (take-with-timeout!! event-chan)
-          {:keys [event-type elapsed-duration]} event]
+    (let [event (take-with-timeout!! event-chan)]
       (check-base-event event :success "some-name")
       (is (instance? Duration (:elapsed-duration event))))))
 
@@ -555,7 +554,7 @@
     (try
       (with-circuit-breaker breaker
         (throw ex))
-      (catch Throwable t))
+      (catch Throwable _))
 
     (let [event (take-with-timeout!! event-chan)
           {:keys [throwable elapsed-duration]} event]
@@ -595,7 +594,7 @@
     (try
       (with-circuit-breaker breaker
         (throw ex))
-      (catch Throwable t))
+      (catch Throwable _))
 
     (let [event (async/<!! event-chan)
           {:keys [throwable elapsed-duration]} event]
@@ -614,7 +613,7 @@
     (try
       (with-circuit-breaker breaker
         true)
-      (catch Throwable t))
+      (catch Throwable _))
 
     (let [event (take-with-timeout!! event-chan)]
       (check-base-event event :not-permitted "some-name"))))
@@ -627,14 +626,14 @@
       (try
         (with-circuit-breaker breaker
           (throw (ex-info "some ex" {})))
-        (catch Throwable t)))
+        (catch Throwable _)))
 
     (cb/emit-events! breaker event-chan)
 
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "some ex" {})))
-      (catch Throwable t))
+      (catch Throwable _))
 
     (let [_error-event (take-with-timeout!! event-chan)
           event (take-with-timeout!! event-chan)]
@@ -672,7 +671,7 @@
       (try
         (with-circuit-breaker breaker
           (throw (ex-info "some ex" {})))
-        (catch Throwable t))
+        (catch Throwable _))
       (let [event (take-with-timeout!! event-chan)]
         (is (= :timeout event))))))
 
@@ -691,7 +690,7 @@
       (try
         (with-circuit-breaker breaker
           (throw (ex-info "some ex" {})))
-        (catch Throwable t))
+        (catch Throwable _))
       (let [event (take-with-timeout!! event-chan)]
         (is (= :error (:event-type event)))))))
 
@@ -710,6 +709,6 @@
       (try
         (with-circuit-breaker breaker
           (throw (ex-info "some ex" {})))
-        (catch Throwable t))
+        (catch Throwable _))
       (let [event (take-with-timeout!! event-chan)]
         (is (= :timeout event))))))
