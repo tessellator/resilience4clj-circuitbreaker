@@ -56,6 +56,7 @@
                 slow-call-rate-threshold
                 slow-call-duration-threshold
                 permitted-number-of-calls-in-half-open-state
+                max-wait-duration-in-half-open-state
                 sliding-window-type
                 sliding-window-size
                 minimum-number-of-calls
@@ -63,8 +64,8 @@
                 automatic-transition-from-open-to-half-open-enabled
                 record-exceptions
                 ignore-exceptions
-                record-exception
-                ignore-exception]} config]
+                record-failure-predicate
+                ignore-exception-predicate]} config]
     (cond-> (CircuitBreakerConfig/custom)
 
       failure-rate-threshold
@@ -78,6 +79,9 @@
 
       permitted-number-of-calls-in-half-open-state
       (.permittedNumberOfCallsInHalfOpenState permitted-number-of-calls-in-half-open-state)
+
+      max-wait-duration-in-half-open-state
+      (.maxWaitDurationInHalfOpenState (Duration/ofMillis max-wait-duration-in-half-open-state))
 
       sliding-window-type
       (.slidingWindowType (condp = sliding-window-type
@@ -102,11 +106,11 @@
       ignore-exceptions
       (.ignoreExceptions (into-array java.lang.Class ignore-exceptions))
 
-      record-exception
-      (.recordException (reify Predicate (test [_ ex] (record-exception ex))))
+      record-failure-predicate
+      (.recordException (reify Predicate (test [_ ex] (record-failure-predicate ex))))
 
-      ignore-exception
-      (.ignoreException (reify Predicate (test [_ ex] (ignore-exception ex))))
+      ignore-exception-predicate
+      (.ignoreException (reify Predicate (test [_ ex] (ignore-exception-predicate ex))))
 
       :always
       (.build))))
@@ -128,7 +132,7 @@
    (CircuitBreakerRegistry/ofDefaults))
   ([configs-map]
    (let [^Map configs (build-configs-map configs-map)]
-    (CircuitBreakerRegistry/of configs))))
+     (CircuitBreakerRegistry/of configs))))
 
 (defn all-circuit-breakers
   "Gets all the circuit breakers in `registry`.
@@ -182,26 +186,26 @@
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^EntryAddedEvent e event]
-       (async/offer! out-chan
-                     {:event-type (keywordize-enum-value (.getEventType e))
-                      :added-entry ^CircuitBreaker (.getAddedEntry e)})))))
+        (async/offer! out-chan
+                      {:event-type (keywordize-enum-value (.getEventType e))
+                       :added-entry ^CircuitBreaker (.getAddedEntry e)})))))
 
 (defn- entry-removed-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^EntryRemovedEvent e event]
-       (async/offer! out-chan
-                     {:event-type (keywordize-enum-value (.getEventType e))
-                      :removed-entry ^CircuitBreaker (.getRemovedEntry e)})))))
+        (async/offer! out-chan
+                      {:event-type (keywordize-enum-value (.getEventType e))
+                       :removed-entry ^CircuitBreaker (.getRemovedEntry e)})))))
 
 (defn- entry-replaced-consumer [out-chan]
   (reify EventConsumer
     (consumeEvent [_ event]
       (let [^EntryReplacedEvent e event]
-       (async/offer! out-chan
-                     {:event-type (keywordize-enum-value (.getEventType e))
-                      :old-entry ^CircuitBreaker (.getOldEntry e)
-                      :new-entry ^CircuitBreaker (.getNewEntry e)})))))
+        (async/offer! out-chan
+                      {:event-type (keywordize-enum-value (.getEventType e))
+                       :old-entry ^CircuitBreaker (.getOldEntry e)
+                       :new-entry ^CircuitBreaker (.getNewEntry e)})))))
 
 (def registry-event-types
   "The event types that can be raised by a registry."
@@ -254,7 +258,7 @@
    (if (name? config)
      (.circuitBreaker registry (clojure.core/name name) (clojure.core/name config))
      (let [^CircuitBreakerConfig cfg (build-config config)]
-      (.circuitBreaker registry (clojure.core/name name) cfg)))))
+       (.circuitBreaker registry (clojure.core/name name) cfg)))))
 
 (defn circuit-breaker
   "Creates a circuit breaker with `name` and `config`."
