@@ -27,6 +27,7 @@
                     :slow-call-rate-threshold 2
                     :slow-call-duration-threshold 3
                     :permitted-number-of-calls-in-half-open-state 4
+                    :max-wait-duration-in-half-open-state 80
                     :sliding-window-size 5
                     :minimum-number-of-calls 6
                     :wait-duration-in-open-state 70
@@ -36,6 +37,7 @@
     (is (= 2.0 (.getSlowCallRateThreshold config)))
     (is (= 3 (.. config getSlowCallDurationThreshold toMillis)))
     (is (= 4 (.getPermittedNumberOfCallsInHalfOpenState config)))
+    (is (= 80 (.. config getMaxWaitDurationInHalfOpenState toMillis)))
     (is (= 5 (.getSlidingWindowSize config)))
     (is (= 6 (.getMinimumNumberOfCalls config)))
     (is (= 70 (.. config getWaitDurationInOpenState toMillis)))
@@ -85,10 +87,10 @@
       (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))))
 
-(deftest test-build-config--record-exception
+(deftest test-build-config--record-failure-predicate
   (let [breaker (cb/circuit-breaker
                  :some-name
-                 {:record-exception #(= "record this" (.getMessage %))})]
+                 {:record-failure-predicate #(= "record this" (.getMessage %))})]
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "not this" {})))
@@ -101,10 +103,10 @@
       (catch Throwable _))
     (is (= 1 (.. breaker getMetrics getNumberOfFailedCalls)))))
 
-(deftest test-build-config--ignore-exception
+(deftest test-build-config--ignore-exception-predicate
   (let [breaker (cb/circuit-breaker
                  :some-name
-                 {:ignore-exception #(= "ignore this" (.getMessage %))})]
+                 {:ignore-exception-predicate #(= "ignore this" (.getMessage %))})]
     (try
       (with-circuit-breaker breaker
         (throw (ex-info "record this" {})))
@@ -587,7 +589,7 @@
 
 (deftest test-emit-events!--on-ignored-error
   (let [event-chan (async/chan 1)
-        breaker (cb/circuit-breaker :some-name {:ignore-exception (constantly true)})
+        breaker (cb/circuit-breaker :some-name {:ignore-exception-predicate (constantly true)})
         ex (ex-info "some message" {:some :value})]
     (cb/emit-events! breaker event-chan)
 

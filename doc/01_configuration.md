@@ -32,20 +32,21 @@ keys in the table. Note that a `config` without a particular key will use the
 default value (e.g., `{}` selects all default values).
 
 | Configuration Option                                   | Default Value        | Description                                                                                                            |
-|--------------------------------------------------------|----------------------|------------------------------------------------------------------------------------------------------------------------|
-| `:failure-rate-threshold`                              |                   50 | The percentage over which the circuit breaker will trip open                                                           |
-| `:slow-call-rate-threshold`                            |                  100 | The percentage over which the circuit breaker will trip open                                                           |
-| `:slow-call-duration-threshold`                        |                60000 | The number of milliseconds over which a call is considered slow                                                        |
-| `:permitted-number-of-calls-in-half-open-state`        |                   10 | The number of permitted calls when the circuit breaker is in the half open state                                       |
-| `:sliding-window-type`                                 |         :count-based | Configures the type of sliding window used when the circuit breaker is closed. Can be `:count-based` or `:time-based`. |
-| `:sliding-window-size`                                 |                  100 | Configures the size of the sliding window when the circuit breaker is closed                                           |
-| `:minimum-number-of-calls`                             |                   10 | The minimum number of calls required before an error rate can be calculated                                            |
-| `:wait-duration-in-open-state`                         |                60000 | The number of milliseconds to wait to transition from open to half-open                                                |
-| `:automatic-transition-from-open-to-half-open-enabled` |              `false` | When `true`, no call is needed to occur to transition from open to half-open                                           |
-| `:record-exceptions`                                   |                   [] | A vector of exception types which should count as failures                                                             |
-| `:ignore-exceptions`                                   |                   [] | A vector of exception types which should not count as failures                                                         |
-| `:record-exception`                                    |  `(constantly true)` | A predicate that receives an exception and determines whether it should count as a failure                             |
-| `:ignore-exception`                                    | `(constantly false)` | A predicate that receives an exception and determines whether it should be ignored                                     |
+| ------------------------------------------------------ | -------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `:failure-rate-threshold`                              | 50                   | The percentage over which the circuit breaker will trip open                                                           |
+| `:slow-call-rate-threshold`                            | 100                  | The percentage over which the circuit breaker will trip open                                                           |
+| `:slow-call-duration-threshold`                        | 60000                | The number of milliseconds over which a call is considered slow                                                        |
+| `:permitted-number-of-calls-in-half-open-state`        | 10                   | The number of permitted calls when the circuit breaker is in the half open state                                       |
+| `:max-wait-duration-in-half-open-state`                | 0                    | The number of milliseconds the circuit breaker maximally waits before switching to open. 0 indicates infinite wait.    |
+| `:sliding-window-type`                                 | :count-based         | Configures the type of sliding window used when the circuit breaker is closed. Can be `:count-based` or `:time-based`. |
+| `:sliding-window-size`                                 | 100                  | Configures the size of the sliding window when the circuit breaker is closed                                           |
+| `:minimum-number-of-calls`                             | 10                   | The minimum number of calls required before an error rate can be calculated                                            |
+| `:wait-duration-in-open-state`                         | 60000                | The number of milliseconds to wait to transition from open to half-open                                                |
+| `:automatic-transition-from-open-to-half-open-enabled` | `false`              | When `true`, no call is needed to occur to transition from open to half-open                                           |
+| `:record-exceptions`                                   | []                   | A vector of exception types which should count as failures                                                             |
+| `:ignore-exceptions`                                   | []                   | A vector of exception types which should not count as failures                                                         |
+| `:record-failure-predicate`                            | `(constantly true)`  | A predicate that receives an exception and determines whether it should count as a failure                             |
+| `:ignore-exception-predicate`                          | `(constantly false)` | A predicate that receives an exception and determines whether it should be ignored                                     |
 
 A `config` can be used to configure a registry or a circuit breaker when it is
 created. You may also add configs to a registry at any point.
@@ -97,7 +98,6 @@ or a config map.
 ;; and store the result in the registry
 (cb/circuit-breaker! reg :custom-config {:ring-buffer-size-in-closed-state 10})
 ```
-
 
 ### Custom Circuit Breakers
 
