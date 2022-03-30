@@ -19,7 +19,7 @@ jobs:
       - name: Set up Clojure
         uses: DeLaGuardo/setup-clojure@3.4
         with:
-          cli: 1.10.3.855
+          cli: 1.11.0.1100
 
       - name: Cache maven artifacts
         id: cache-maven
@@ -30,7 +30,7 @@ jobs:
 
       - name: Download dependencies
         if: steps.cache-maven.outputs.cache-hit != 'true'
-        run: clojure -A:clj-1.10:async-1.0:test:lint -Stree
+        run: clojure -A:clj-1.11:async-1.0:test:lint -Stree
 
       - name: Lint code
         run: make lint
