@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>tessellator</groupId>
   <artifactId>resilience4clj-circuitbreaker</artifactId>
-  <version>0.4.1</version>
+  <version>0.5.0</version>
   <name>resilience4clj-circuitbreaker</name>
   <description>A small Clojure wrapper around the resilience4j CircuitBreaker module</description>
   <licenses>
@@ -15,7 +15,7 @@
   <scm>
     <connection>scm:git:git://github.com/tessellator/resilience4clj-circuitbreaker.git</connection>
     <developerConnection>scm:git:ssh://git@github.com/tessellator/resilience4clj-circuitbreaker.git</developerConnection>
-    <tag>d74348365a65a4237a9bafe6180d9d796785f7c3</tag>
+    <tag>88800b01ac8e843fd3ecd850a10278afa851a1ea</tag>
     <url>https://github.com/tessellator/resilience4clj-circuitbreaker</url>
   </scm>
   <dependencies>
