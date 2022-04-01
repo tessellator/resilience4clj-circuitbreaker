@@ -8,7 +8,6 @@ Requires Clojure 1.5 or later for JDK 8, and Clojure 1.10 or later for JDK 9+.
 [![clojars badge](https://img.shields.io/clojars/v/tessellator/resilience4clj-circuitbreaker.svg)](https://clojars.org/tessellator/resilience4clj-circuitbreaker)
 [![cljdoc badge](https://cljdoc.org/badge/tessellator/resilience4clj-circuitbreaker)](https://cljdoc.org/d/tessellator/resilience4clj-circuitbreaker/CURRENT)
 
-
 ## Quick Start
 
 The following code defines a function `make-remote-call` that uses a circuit
@@ -35,6 +34,6 @@ on a circuit breaker.
 
 ## License
 
-Copyright © 2019-2020 Thomas C. Taylor and contributors.
+Copyright © 2019-2022 Thomas C. Taylor and contributors.
 
 Distributed under the Eclipse Public License version 2.0.
